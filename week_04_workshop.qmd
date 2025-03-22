@@ -1,0 +1,47 @@
+---
+title: "India TB Pathways Analysis"
+author: "Beatrice Edusei"
+format: html
+---
+
+# intro to dataset
+
+In this report, we analyze the India TB Pathways dataset
+
+
+```{python}
+# import packages
+import pandas as pd
+import plotly.express as px 
+import itables as it
+
+# load the dataset
+df = pd.read_csv("C:/Users/eduse/OneDrive/Desktop/graph_courses_python/india.csv")
+print(df.head())
+print(df.columns)
+```
+
+The dataset  is seen above
+
+# Age vs Alcohol
+
+```{python}
+#create a voilin plot of Age vs Alcohol
+fig = px.histogram(df, 
+                   x="Age", 
+                   color="Alcohol",  
+                   title="Distribution of Age and Alcohol consumption",
+                   barmode='group')  
+
+
+fig.show()
+```
+
+![Map of Tamil Nadu. Vellore district is in the north-east.](C:\Users\eduse\OneDrive\Desktop\graph_courses_python\intro_to_quarto2\images\tndistrict_1.png)
+
+
+
+
+
+
+ 

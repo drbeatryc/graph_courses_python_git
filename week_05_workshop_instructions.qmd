@@ -1,0 +1,259 @@
+---
+title: "Python Workshop: Data Subsetting"
+author: "Beatrice Edusei"
+format: html
+---
+
+# Introduction
+
+For this week's assignment, you will be preparing data subsets for **someone else to use**. It's a hands-on approach to using Pandas' filtering and selection methods. You can work directly in this document for the assignment.
+
+# Setup
+
+First, make sure this document is in your `graph_courses_python` folder, where your virtual environment is activated and you have pandas installed.
+
+Then, run the following code to load pandas, and set the display options for pandas dataframes:
+
+```{python}
+import pandas as pd
+```
+
+# Get the Data
+
+Download the lending club dataset from GitHub here[https://github.com/the-graph-courses/pbb_2025_q1_materials/blob/main/week_05_workshop/data/loans_full_schema.csv](https://github.com/the-graph-courses/pbb_2025_q1_materials/blob/main/week_05_workshop/data/loans_full_schema.csv) then place it in an appropriate place in your `graph_courses_python` folder.
+
+Below, load the data into a pandas dataframe with the `read_csv()` function from pandas.
+
+```{python}
+from pathlib import Path
+
+datafile = Path(__file__).parent / "data" / "loans_full_schema.csv"
+df = pd.read_csv(datafile)
+df
+```
+
+View the dataset in VS Code with the data viewer, so you can understand what it contains.
+
+The dataset comes from Lending Club, a platform for peer-to-peer lending. Each row pertains to a specific loan made through the platform.
+
+You can find the data dictionary here: [https://vincentarelbundock.github.io/Rdatasets/doc/openintro/loans_full_schema.html](https://vincentarelbundock.github.io/Rdatasets/doc/openintro/loans_full_schema.html).
+
+Now, drop the `rownames` column from the dataframe, as it's not a useful variable, but an artifact of the data source.
+
+```{python}
+# drop rownames in columns
+df.drop(columns=["rownames"])
+```
+
+# Create and Export Data Subsets    
+
+For each subset below:
+
+1) Use Pandas selection and filtering methods to create the required extract
+2) Export each subset to a separate CSV file in an "outputs" folder that you create.
+
+Here is a code snippet showing how to export a dataframe to a CSV file in an `outputs` folder:
+
+
+
+```{python}
+# | eval: false
+# Export to CSV
+df.to_csv('outputs/my_dataframe.csv', index=False)
+```
+
+## Data Subset 1: Extract demographic and loan information
+
+Create a subset containing the following demographic information (employment title, employment length, state, homeownership status) and loan details (loan amount, loan term, and interest rate). You may need to consult the data dictionary to identify which variables you need. Call your subset `demog_loan_info`.
+
+After creating the subset, rename the `term` column to `loan_term_months` to make it clear what the variable measures.
+
+Then, export the subset to a CSV file.
+
+```{python}
+# demog_loan_info
+df[[ "emp_title", "emp_length", "state", "homeownership",
+    "loan_amount", "term", "interest_rate"]]
+demog_loan_info = df[[ "emp_title", "emp_length", "state", "homeownership",
+    "loan_amount", "term", "interest_rate"]]
+demog_loan_info
+```
+
+```{python}
+# renaming term to loan_term_months
+df.rename(columns={"term":"loan_term_months"})
+```
+
+```{python}
+import os
+
+# Ensure 'outputs' folder exists
+os.makedirs("outputs", exist_ok=True)
+
+# Now save the file
+demog_loan_info.to_csv("outputs/demog_loan_info.csv", index=False)
+
+```
+
+```{python}
+# export the subset to CSV file
+demog_loan_info.to_csv("outputs/demog_loan_info.csv", index=False)
+```
+
+## Data Subset 2: Extract credit evaluation variables
+
+Create a subset with all credit-related variables. Use filtering with the `filter()` method and the `regex` argument to select variables that contain "credit" in their names. Call your subset `credit_vars`.
+
+Then, export the subset to a CSV file.
+
+```{python}
+# subset credit related values
+df.filter(regex="credit", axis=1)
+credit_vars =df.filter(regex="credit", axis=1)
+credit_vars
+```
+
+```{python}
+# export credit_vars to a CSV file
+credit_vars.to_csv("outputs/credit_vars.csv", index=False)
+
+```
+
+## Data Subset 3: Extract high-income borrowers
+
+Create a subset of only high-income borrowers (annual income > $100,000). Call your subset `high_income`.
+
+Then, export the subset to a CSV file.
+
+```{python}
+# subset for only high income borrowers
+df.query("annual_income > 100000")
+high_income = df.query("annual_income > 100000")
+high_income
+only_high_income = df[[high_income]]
+```
+
+
+
+```{python}
+# subset to a csv file
+high_income.to_csv("outputs/high_income.csv", index=False)
+
+```
+
+Note that for this you do not have to subset any columns, as you did for the previous subsets.
+
+## Data Subset 4: Extract high-risk loans 
+
+Create a subset of high-risk loans, defined as those meeting ANY of these criteria:
+
+- Interest rate is greater than 15%
+- Debt-to-income ratio is greater than 30 (use the individual debt-to-income, not joint)
+- Have had any delinquencies in the last 2 years
+
+Call your subset `high_risk`. Then, export the subset to a CSV file.
+
+```{python}
+#subset high risk
+df[
+    (df["interest_rate"] > 15) |
+    (df["debt_to_income"] > 30) |
+    (df["delinq_2y"] > 0)
+]
+high_risk =df[
+    (df["interest_rate"] > 15) |
+    (df["debt_to_income"] > 30) |
+    (df["delinq_2y"] > 0)
+]
+high_risk
+```
+
+```{python}
+high_risk.to_csv("outputs/high_risk.csv", index=False)
+```
+
+## Data Subset 5: Extract "prime" borrowers
+
+Create a subset of prime borrowers, defined as those meeting ALL of these criteria:
+
+- Grade A or B
+- Debt-to-income ratio is less than 20
+- Have NOT had any delinquencies in the last 2 years
+
+Call your subset `prime`. Then, export the subset to a CSV file.
+
+```{python}
+# subset for prime borrowers
+df[
+    df["grade"].isin(["A", "B"]) &
+    (df["debt_to_income"] < 20) &
+    (df["delinq_2y"] == 0)]
+prime = df[
+    df["grade"].isin(["A", "B"]) &
+    (df["debt_to_income"] < 20) &
+    (df["delinq_2y"] == 0)]
+prime
+```
+
+```{python}
+prime.to_csv("outputs/prime.csv", index=False)
+```
+
+## Optional Challenge: Export to Excel
+
+For an extra challenge, export all subsets to a single Excel workbook with multiple sheets using the `pd.ExcelWriter()` function.
+
+Here is an example code snippet showing how to do this using the `tips` dataset:
+
+```{python}
+# | eval: false
+import openpyxl # important to install this package
+import plotly.express as px
+
+tips = px.data.tips()
+
+# Create some sample subsets
+sunday_tips = tips[tips['day'] == 'Sun']
+saturday_tips = tips[tips['day'] == 'Sat']
+friday_tips = tips[tips['day'] == 'Fri']
+
+# Use the ExcelWriter to export each subset to a separate sheet
+with pd.ExcelWriter('outputs/tips_subsets.xlsx') as writer:
+    sunday_tips.to_excel(writer, sheet_name='Sunday', index=False)
+    saturday_tips.to_excel(writer, sheet_name='Saturday', index=False)
+    friday_tips.to_excel(writer, sheet_name='Friday', index=False)
+```
+
+```{python}
+# export to excel
+import openpyxl # important to install this package
+import plotly.express as px
+
+demog_loan_info = df[[ "emp_title", "emp_length", "state", "homeownership",
+    "loan_amount", "term", "interest_rate"]]
+credit_vars =df.filter(regex="credit", axis=1)
+high_income = df.query("annual_income > 100000")
+high_risk =df[
+    (df["interest_rate"] > 15) |
+    (df["debt_to_income"] > 30) |
+    (df["delinq_2y"] > 0)]
+prime = df[
+    df["grade"].isin(["A", "B"]) &
+    (df["debt_to_income"] < 20) &
+    (df["delinq_2y"] == 0)]
+
+```
+
+```{python}
+pd.ExcelWriter("outputs/loan_subsets.xlsx") as writer:
+    demog_loan_info.to_excel(writer, sheet_name="Demographics_LoanInfo", index=False)
+    credit_vars.to_excel(writer, sheet_name="Credit_Variables", index=False)
+    high_income.to_excel(writer, sheet_name="High_Income", index=False)
+    high_risk.to_excel(writer, sheet_name="High_Risk", index=False)
+    prime.to_excel(writer, sheet_name="Prime_Borrowers", index=False)
+
+```
+
+## Submission
+
+Submit only your Quarto file or Python script with the completed code. The exports will be evaluated by reviewing your code, so you do not need to submit the data subsets.

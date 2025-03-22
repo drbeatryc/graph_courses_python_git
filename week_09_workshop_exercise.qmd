@@ -1,0 +1,353 @@
+---
+title: "Workshop Exercise: Joining and Reshaping Data"
+author: "BEATRICE EDUSEI"
+---
+
+# 1. Introduction
+
+In this workshop, you'll learn how to clean and analyze HIV and AIDS data across different countries and years. We will start with raw datasets containing estimates of new and total HIV cases per country-year. The goal is to clean and merge these datasets with population data.
+
+# 2. Load Libraries
+
+```{python}
+# Load libraries
+import pandas as pd
+import country_converter as cc
+import plotly.express as px
+```
+
+# 3. Data Import
+
+Download the datasets from the relevant link on the course page and unzip them if necessary.
+
+First, we import two raw datasets, each containing estimates per country-year. These data were accessed from the Gapminder foundation, at [www.gapminder.org/data](https://www.gapminder.org/data).
+
+1. **People living with HIV:** This dataset contains the total number of people currently infected with HIV (*data/hiv_prevalence.csv*).
+
+2. **New HIV infections:** This dataset provides the total number of people newly infected with HIV during a given year (*data/hiv_incidence.csv*).
+
+Load the datasets into Python using `pd.read_csv()` then explore them to understand their structure.
+
+```{python}
+# Load raw data from specified paths
+total_hiv_raw = pd.read_csv("data/hiv_prevalence.csv")
+total_hiv_raw
+```
+
+
+```{python}
+new_hiv_raw = pd.read_csv("data/hiv_incidence.csv")#
+new_hiv_raw
+```
+
+
+
+Now, we import data on population estimates per country per year from the World Bank:
+
+```{python}
+# Load population data
+population = pd.read_csv("data/population_estimates_world_bank.csv")
+population
+```
+
+# 4. Reshape Data
+
+Now that we have imported the data it's time to reshape it.
+
+The datasets are currently in wide format, with each year as a separate column, something like this:
+
+| country     | 1990  | 1991  | 1992  | 1993  | 1994  |
+|-------------|-------|-------|-------|-------|-------|
+| Afghanistan | 600   | 600   | 1000  | 1100  | 1200  |
+| Angola      | 33000 | 39000 | 46000 | 54000 | 62000 |
+| Argentina   | 27000 | 31000 | 35000 | 39000 | 43000 |
+| Armenia     | 350   | 600   | 600   | 600   | 1000  |
+| Australia   | 12000 | 12000 | 12000 | 11000 | 11000 |
+| Austria     | 600   | 600   | 1000  | 1300  | 1500  |
+
+We need to convert this to long format, where each row represents a single year-country combination.
+
+For example:
+
+| country     | year | cases |
+|-------------|------|-------|
+| Afghanistan | 1990 | 600   |
+| Afghanistan | 1991 | 600   |
+| Afghanistan | 1992 | 1000  |
+| Afghanistan | 1993 | 1100  |
+| Afghanistan | 1994 | 1200  |
+
+## 4.1 Instructions for Reshaping `new_hiv_raw` Data
+
+Reshape the `new_hiv_raw` dataset by converting the columns that represent different years into a new column called `year`, and place the corresponding values into a new column called `new_cases`.
+
+Hints:
+
+1. Use `melt()` on `new_hiv_raw`.
+2. Exclude the `country` and `country_code` columns from being melted by specifying `id_vars=['country', 'country_code']`.
+3. Set the names of the new columns inside `melt()` using:
+    - `var_name='year'` to label the column that will store the years.
+    - `value_name='new_cases'` to store the values representing new HIV cases under the `new_cases` column.
+
+```{python}
+# Reshape new_hiv_raw to long format
+new_hiv_long = new_hiv_raw.melt(
+    id_vars=['country', 'country_code'],
+    var_name='year',
+    value_name='new_cases'
+)
+new_hiv_long 
+```
+
+---
+
+## 4.2 Instructions for Reshaping `total_hiv_raw` Data
+
+In a similar manner, reshape the `total_hiv_raw` dataset to a long format. Convert the year columns into a new column called `year` and the counts into `total_cases`.
+
+```{python}
+# Reshape total_hiv_raw to long format
+total_hiv_long = total_hiv_raw.melt(
+    id_vars=['country', 'country_code'],
+    var_name='year',
+    value_name='total_cases')
+total_hiv_long
+```
+
+**CHECKPOINT:**
+
+After performing these steps, make sure that you have two reshaped datasets:
+
+- `new_hiv_long` with **4 columns**: `country`, `country_code`, `year`, and `new_cases`.
+- `total_hiv_long` with **4 columns**: `country`, `country_code`, `year`, and `total_cases`.
+
+# 5. Joining the HIV Datasets
+
+Now that both datasets are in long format, we can join them.
+
+Note that you need to use the `country`, `country_code`, and `year` columns as the keys (`on=['country', 'country_code', 'year']`).
+
+Use `pd.merge()` with `how='outer'` so that we can keep as much information as possible.
+
+```{python}
+# Join the two datasets
+hiv_data_combined = pd.merge(new_hiv_long ,total_hiv_long)
+hiv_data_combined
+```
+
+**CHECKPOINT:** The combined dataset should have columns for `country`, `country_code`, `year`, `total_cases`, and `new_cases`. There may some missing values; that is okay.
+
+# 6. Add Population Data
+
+The `population` dataset contains information on population per year from 2000 to 2017.
+
+```{python}
+population.head()
+```
+
+Note that we are interested in the total population of each country, which is labelled `SP.POP.TOTL` in the dataset.
+
+Additionally, note that the `country` column doesn't have full country names, but the 3-letter country codes.
+
+This will make it easier to join with our HIV dataset, since country codes are consistent across datasets (unlike full country names).
+
+## 6.1 Filter and Prepare Population Data
+
+Next, complete the following transformations on the `population` dataset:
+
+-   Query the data to just the `SP.POP.TOTL` indicator
+-   Melt the data to a long format.
+-   Rename the "country" column to "country_code" so that we can join it properly later on.
+-   Drop the `indicator` column.
+
+Store your final result as `population_long`.
+
+```{python}
+# Your code here
+# Filter for total population indicator using query
+
+population_filtered = population.query("indicator == 'SP.POP.TOTL'")
+population_filtered
+```
+
+```{python}
+# Melt the data to long format
+population_long = population_filtered.melt(
+    id_vars=['country',"indicator"],
+    var_name='year',
+    value_name='population'
+)
+population_long
+```
+
+
+
+```{python}
+# Rename 'country' to 'country_code' for merging
+population_long = population_long.rename(columns={'country': 'country_code'})
+
+population_long
+```
+
+```{python}
+# Drop the 'indicator' column
+population_long = population_long.drop(columns=['indicator'])
+population_long
+```
+
+**CHECKPOINT:**
+
+After performing these steps, make sure that you have a dataset named `population_long` with **3 columns**: `country_code`, `year`, and `population`.
+
+## 6.2 Join Population Data with HIV Data
+
+Use `pd.merge()` to add the population information to your HIV data combined dataset (the HIV data should be the left or primary dataset). You should use both "country_code" and "year" as keys.
+
+```{python}
+# Merge population data with HIV data
+hiv_data_combined_pop = pd.merge(
+    total_hiv_long,
+    population_long,
+    on=['country_code', 'year'],
+    how='left'
+)
+hiv_data_combined_pop
+```
+
+**CHECKPOINT:** Verify that `hiv_data_combined_pop` now contains a `population` column.
+
+## 6.3 Calculate Incidence Rate and Prevalence Rate
+
+Lastly, calculate the incidence rate and prevalence rate per 100,000 people:
+
+- **Incidence Rate** = New Cases / Population * 100000
+- **Prevalence Rate** = Total Cases / Population * 100000
+
+```{python}
+# Calculate incidence and prevalence rates
+# Ensure 'year' is numeric
+hiv_data_combined_pop['year'] = hiv_data_combined_pop['year'].astype(int)
+hiv_data_combined_pop['year']
+```
+
+```{python}
+# Merge new cases dataset to get 'new_cases' column
+hiv_data_combined_pop_2 = pd.merge(
+    hiv_data_combined_pop,
+    new_hiv_long[['country_code', 'year', 'new_cases']],
+    on=['country_code', 'year'],
+    how='left'
+)
+hiv_data_combined_pop_2
+```
+
+```{python}
+# Calculate incidence and prevalence rates
+hiv_data_combined_pop_2['incidence_rate'] = (
+    hiv_data_combined_pop_2['new_cases'] / hiv_data_combined_pop['population'] * 100000
+)
+
+hiv_data_combined_pop_2['prevalence_rate'] = (
+    hiv_data_combined_pop_2['total_cases'] / hiv_data_combined_pop['population'] * 100000
+)
+hiv_data_combined_pop_2
+```
+
+
+
+# 7. Plot Incidence Rates
+
+Now, you'll select 3 countries of your choice and plot their incidence rate over time.
+
+- Query the data to narrow down the countries. 
+- Convert the `year` column to a `numeric` type with `astype(int)`.
+
+Store the result as `hiv_data_mini`. Note that some countries have many years with missing data, especially for `new_cases`.
+
+```{python}
+# Your code here
+
+# Select 3 countries for analysis
+selected_countries = ['USA', 'IND', 'ZAF']  # Example: USA, India, South Africa
+
+# Filter data
+hiv_data_mini = hiv_data_combined_pop_2[hiv_data_combined_pop_2['country_code'].isin(selected_countries)]
+hiv_data_mini
+```
+
+```{python}# Convert 'year' to integer
+hiv_data_mini["year"] = hiv_data_mini["year"].astype(int)
+
+```
+
+
+
+Now plot incidence rates over time using a line graph.
+
+```{python}
+# Your code here
+fig = px.line(hiv_data_mini, x="year", y="incidence_rate", color="country",
+               title="HIV Incidence Rate Over Time")
+
+fig
+```
+
+# 8. Plot Prevalence Rates
+
+Plot their prevalence rates over time, using a line graph.
+
+```{python}
+# Your code here
+fig2 = px.line(hiv_data_mini, x="year", y="prevalence_rate", color="country",
+              markers=True, title="HIV Incidence Rate Over Time")
+fig2
+```
+
+# 9. Optional Challenge
+
+For this challenge, you should:
+
+1. **Add Regional Information:** Use the `country_converter` package to get regional (continent) information for each country.
+2. **Identify Highest Prevalence Rates per Continent:** Find the countries with the highest prevalence rate in 2011 for each continent.
+3. **Create a Bar Chart:** Make a bar chart comparing the 2011 prevalence rates of these countries.
+
+```{python}
+# Your code here
+hiv_data_combined_pop_2['continent'] = cc.convert(hiv_data_combined_pop['country_code'], to='continent')
+hiv_data_combined_pop_2['continent']
+hiv_data_combined_pop_2
+```
+
+
+```{python}
+hiv_data_combined_pop_2['year'] = hiv_data_combined_pop_2['year'].astype(int)
+hiv_data_combined_pop_2['year']
+```
+
+
+```{python}
+# Filter for 2011 data
+hiv_2011 = hiv_data_combined_pop_2[hiv_data_combined_pop_2['year'] == 2011]
+hiv_2011
+```
+
+```{python}
+# Get highest prevalence rate per continent
+highest_prevalence_by_continent = hiv_2011.loc[hiv_2011.groupby('continent')['prevalence_rate'].idxmax()]
+highest_prevalence_by_continent
+
+hiv_data_combined_pop_2
+```
+
+
+```{python}
+fig3 = px.bar(hiv_2011, x="country", y="prevalence_rate", 
+             title="HIV Prevalence Rates in 2011",
+             labels={"prevalence_rate": "Prevalence Rate per 100,000"},
+             color="country",  # Different colors for each country
+             text="prevalence_rate")  # Show values on bars
+fig3
+```
+
+
+

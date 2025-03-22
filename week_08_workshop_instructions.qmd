@@ -1,0 +1,316 @@
+---
+title: "Workshop Exercise: Grouping, Summarizing and Plotting"
+author: "BEATRICE EDUSEI"
+---
+
+# 1. Data Preparation
+
+## 1.1. Load Packages
+
+To get started, **load in the needed packages**: pandas, numpy, plotly express.
+
+```{python}
+# Your code here
+import pandas as pd
+import plotly.express as px
+import numpy as np
+
+```
+
+## 1.2. Import Data
+
+Download the `india_tuberculosis.csv` file from the course portal and save it in your `data` folder.
+
+Now, **read in the `india_tuberculosis` dataset into Python from your data folder** into a DataFrame called `tb`. The DataFrame you import should have 880 rows and 21 columns. Remember to use relative paths to allow your script to use project-relative paths.
+
+```{python}
+# Import the CSV file
+# Your code here
+tb = pd.read_csv("data/india_tuberculosis.csv")
+tb
+```
+
+Run the following line of code to convert all column names to lowercase and replace spaces with underscores:
+
+```{python}
+tb.columns = tb.columns.str.lower().str.replace(' ', '_')
+```
+
+```{python}
+tb.columns = tb.columns.str.lower().str.replace(' ', '_', regex=True)
+tb.columns
+```
+
+## 1.3. Calculate Total Cost
+
+Each patient record notes the location and cost of up to three visits. Add together these costs (`first_visit_cost`, `second_visit_cost`, and `third_visit_cost`) to create a `total_cost` variable.
+
+```{python}
+# Calculate total cost
+tb["total_cost"] = tb[["first_visit_cost", "second_visit_cost", "third_visit_cost"]].sum(axis=1)
+tb["total_cost"]
+tb
+```
+
+# 2. Investigating Healthcare Costs by Education Level
+
+## 2.1. Reorder Education Levels
+
+Before moving further, let's take a closer look at the `education` variable in our dataset:
+
+```{python}
+# Count unique values of education levels
+tb["education"].value_counts()
+```
+
+You'll notice that education levels are ordered in descending order by default. However, in this case, we want to reorder the education levels so that they are arranged in a chronological order (lower education levels come first).
+
+First, use the `replace()` method to convert the "Graduate & Above" values to "Graduate".
+
+```{python}
+tb["education_level"] = tb["education_level"].replace("Graduate & Above", "Graduate")
+tb["education_level"]
+```
+
+Now, run the code below to reorder the education levels by converting the `education` variable into a categorical variable with the levels defined in a specific order:
+
+```{python}
+education_levels = [
+    "No Education",
+    "Primary",
+    "Middle",
+    "Secondary",
+    "Higher Secondary",
+    "Graduate",
+    "Missing",
+]
+```
+
+```{python}
+tb["education"] = pd.Categorical(
+    tb["education"], categories=education_levels, ordered=True#
+)
+
+```
+
+Now, inspect the `education` variable again to make sure it has been reordered correctly:
+
+```{python}
+tb["education"].value_counts()
+
+```
+
+We will use the newly transformed `education` variable for grouping, summarizing, and plotting below.
+
+## 2.2. Table of Costs by Education Level
+
+Let's compare the cost of treatment at different health facilities using a summary table. Use pandas methods to group by education level and create a summary table with two variables:
+
+- The number of patients in each education level
+- The mean total cost for each education level
+
+Store the resulting DataFrame as an object called `edu_cost_table`.
+
+```{python}
+# Create summary table
+edu_cost_table = tb.groupby("education_level").agg(
+    num_patients=("education_level", "count"),
+    mean_total_cost=("total_cost", "mean")
+).reset_index()
+edu_cost_table
+```
+
+Reorder the rows of the summary table to go from highest to lowest mean cost. You can use the `sort_values()` method to do this.
+
+```{python}
+# Reorder summary table
+edu_cost_table = edu_cost_table.sort_values(by="mean_total_cost", ascending=False)
+edu_cost_table 
+```
+
+Which education level has the highest mean total cost of treatment?
+
+# Graduates have the highest mean total cosy of treatment
+
+Below, we will visualize the data with a plot to see if there is a relationship between education level and healthcare costs.
+
+## 2.3. Visualize Costs by Education Level
+
+Using `plotly.express` and the costs summary table you created earlier, create a bar plot of mean costs by education level. It should be sorted from lowest education level to highest education level.
+
+```{python}
+# Your code here
+fig = px.bar(
+    edu_cost_table,
+    x="education_level",
+    y="mean_total_cost",
+    title="Mean Treatment Cost by Education Level",
+    labels={"education_level": "Education Level", "mean_total_cost": "Mean Total Cost"})
+fig
+```
+
+Write a short interpretation of the plot. The bar chart illustrates the mean treatment cost by education level. The trend suggests that as education level increases, the mean treatment cost also tends to rise.
+Graduate-level individuals have the highest mean treatment costs.
+Lower education levels (No Education, Primary, and Secondary) have lower treatment costs on average.
+The gap in costs may indicate differences in healthcare access, affordability, or treatment choices based on education level.
+This pattern might suggest that higher-educated individuals seek more expensive treatments, have better access to healthcare, or opt for advanced medical services.
+
+
+# 3. Investigating Healthcare Costs by Age Group
+
+## 3.1. Create an `age_group` Variable
+
+The `age` variable records the age of each patient in years. We want to classify the patients into four approximately equally-sized age groups for further analysis.
+
+First, run the code below to determine the quantiles of the `age` variable to decide the cutoffs for each age group:
+
+```{python}
+# Determine quantiles of age
+tb["age"].describe()
+```
+
+Based on the quantile markers (min, 25%, 50%, 75%, max), we can note the following four age groups with approximately equal numbers of patients:
+
+- 18-36
+- 37-47
+- 48-57
+- 58+
+
+Use a custom function called `assign_age_group()`, then vectorize it using `np.vectorize()` and apply it to the `age` variable to create an `age_group` variable.
+
+(If you prefer, you can also use `pd.cut()` to create the `age_group` variable.)
+
+```{python}
+# Your code here
+
+# Determine quantile cutoffs
+quantiles = tb["age"].quantile([0, 0.25, 0.50, 0.75, 1.0]) 
+
+# Define age group labels
+age_labels = ["Youngest (Q1)", "Young (Q2)", "Older (Q3)", "Oldest (Q4)"]
+
+# Create the `age_group` variable using `pd.cut()`
+tb["age_group"] = pd.cut(tb["age"], bins=quantiles, labels=age_labels, include_lowest=True)
+
+```
+
+Now, check if we met our goal of having a similar number of patients in each age group using the `value_counts()` method:
+
+```{python}
+# Tabulate age groups
+tb["age_group"].value_counts(normalize=True)*100
+```
+
+**Checkpoint:** If you classified the age groups correctly, you will see that each age group has approximately 24-26% of the patients.
+
+## 3.2. Table of Costs by Age Group
+
+Next, summarize the total healthcare costs by age group. Use pandas methods to group by `age_group` and create a summary table with two variables:
+
+- The number of patients in each age group
+- The mean total cost for each age group
+
+Store the resulting DataFrame as an object called `age_cost_table`.
+
+```{python}
+# Create summary table for age groups
+age_cost_table = tb.groupby("age_group").agg(
+    num_patients=("age_group", "count"),
+    mean_total_cost=("total_cost", "mean")
+).reset_index()
+age_cost_table
+```
+
+## 3.3. Visualize Costs by Age Group
+
+Using `plotly.express` and the costs summary table you created earlier, create a bar plot of mean costs by age group.
+
+```{python}
+# Your code here
+import plotly.express as px
+
+# Create the bar plot
+fig = px.bar(
+    age_cost_table,
+    x="age_group",
+    y="mean_total_cost",
+    title="Mean Healthcare Cost by Age Group",
+    labels={"age_group": "Age Group", "mean_total_cost": "Mean Total Cost"},
+    text_auto=True
+)
+
+# Show the figure
+fig.show()
+
+```
+
+Write a short interpretation of the plot.
+The bar chart illustrates the mean total healthcare cost by age group. The observed trend suggests that healthcare costs generally increases with extreme of ages(younger and older)
+The youngest age group (Q1) has the highest average healthcare cost.
+Older age groups (Q3 & Q4) tend to have higher mean costs, with the oldest group (Q4) showing the highest expenses. 
+The young(Q2) has the lowest avearge healthcare cost. 
+This pattern may indicate that older and youngest individuals require more medical care, leading to higher treatment costs. It could also reflect an increase in chronic conditions and age-related health issues. 
+
+# 4. Bonus Challenge (Optional)
+
+If you finish early and have extra time, you can explore and transform the dataset further.
+
+We can look at two types of health facilities in the dataset: private and public (government).
+
+```{python}
+# List of healthcare locations
+tb["first_visit_location"].unique()
+```
+
+Note: PHC = primary health center, GH = govt hospital, etc.
+
+## 4.1. Comparing Delays in Public vs Private Health Facilities
+
+Let's create a new variable indicating whether a healthcare location is private or public. We can do this using the `str.contains()` function from pandas.
+
+```{python}
+tb['first_visit_type'] = np.where(
+    tb['first_visit_location'].str.contains('Pvt'),
+    'Private',
+    'Public'
+)
+tb['first_visit_type']
+tb
+```
+
+Inspect the new variable in `tb`.
+
+Your assignment for this challenge is to summarize delays in treatment and compare the length of delays between private and public health facilities.
+
+You can start by making a summary table of `treatment_initiation_delay_in_days`, grouped by `first_visit_type`. Then visualize the data and draw insights from your findings.
+
+```{python}
+print(tb.columns)
+```
+
+```{python}
+delay_summary = tb.groupby("first_visit_type").agg(
+    num_patients=("treatment_initiation_delay_(in_days)", "count"),
+    mean_delay=("treatment_initiation_delay_(in_days)", "mean"),
+    median_delay=("treatment_initiation_delay_(in_days)", "median"),
+    max_delay=("treatment_initiation_delay_(in_days)", "max"),
+    min_delay=("treatment_initiation_delay_(in_days)", "min")
+).reset_index()
+
+```
+
+
+```{python}
+
+fig2 = px.box(
+    tb,
+    x="first_visit_type",
+    y="treatment_initiation_delay_(in_days)",
+    title="Distribution of Treatment Initiation Delays by Facility Type",
+    labels={"first_visit_type": "Health Facility Type", "treatment_initiation_delay_in_days": "Delay in Days"},
+    points="all" 
+)
+
+fig2.show()
+
+```

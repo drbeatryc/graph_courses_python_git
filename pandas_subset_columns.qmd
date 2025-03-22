@@ -1,0 +1,219 @@
+
+# subsetting columns
+
+# imports
+
+
+```{python}
+import pandas as pd
+```
+
+# dataset
+
+```{python}
+yao = pd.read_csv("data/yaounde_data.csv")
+yao
+```
+
+# selecting colums with square brackets
+
+```{python}
+yao[["age", "sex"]]
+```
+
+```{python}
+# this code does not work
+# yao["age","sex"]
+```
+
+
+```{python}
+yao["age"]
+```
+
+
+```{python}
+yao_subset = yao[["age","sex"]]
+```
+
+## storing data subsets
+
+
+```{python}
+yao_subset
+```
+
+
+```{python}
+yao_subset = yao_subset[["age"]]
+yao_subset
+```
+
+# practice Q: select columns with[]
+ use the [] operator to select the weight_kg and height_cm variables in the yao data frame. assign the result to a new dataframe called yao_weight_height
+
+ 
+ ```{python}
+ yao[["weight_kg"]]
+
+ ```
+
+ 
+ ```{python}
+ yao[["height_cm"]]
+ ```
+
+ 
+ ```{python}
+yao[["weight_kg","height_cm"]]
+
+ ```
+
+
+```{python}
+yao_weight_height =yao[["weight_kg","height_cm"]]
+```
+
+```{python}
+yao_weight_height
+```
+
+# excluding columns with drop()
+
+```{python}
+yao.drop(columns=["age"])
+```
+
+```{python}
+yao.drop(columns=["age", "age_category", "occupation"])
+```
+
+# practice Q: Drop columns with drop()
+
+```{python}
+yao.drop(columns=["highest_education", "consultation"])
+```
+
+```{python}
+yao_no_education_consultation = yao.drop(columns=["highest_education", "consultation"])
+```
+
+```{python}
+yao_no_education_consultation 
+```
+
+## musing filter to select columns by regex
+
+```{python}
+yao.filter(regex= "ig")
+```
+
+```{python}
+yao.filter(regex= "^ig") # starts with ig
+```
+
+```{python}
+yao.filter(regex=".*results$")
+```
+
+# practice Q: select columns with regex
+
+```{python}
+yao.filter(regex="^is_")
+```
+
+```{python}
+yao_is_columns = yao.filter(regex="^is_")
+```
+
+```{python}
+yao_is_columns
+```
+
+# changing column names with rename
+
+```{python}
+yao.rename(columns={"age":"patient_age","sex":"patient_sex"})
+```
+
+# practice Q: rename columns with rename()
+
+```{python}
+yao.rename(columns={"age_category":"age_cat"})
+```
+
+```{python}
+yao_age_cat = yao.rename(columns={"age_category":"age_cat"})
+```
+
+```{python}
+yao_age_cat
+```
+
+## cleaning  messy column names
+
+```{python}
+test_df = pd.DataFrame({"good_name": range(3),"bad name": range(3), "bad*@name*2": range(3)})
+
+test_df
+```
+
+```{python}
+# bad names are not accessible through dot syntax 
+# test_df.bad name
+```
+
+```{python}
+test_df.columns.str.replace(r"[^a-zA-Z0-9]","_", regex = True )
+```
+
+```{python}
+test_df.columns = test_df.columns.str.replace(r"[^a-zA-Z0-9]","_", regex = True )
+```
+
+```{python}
+test_df.columns
+```
+
+# practice Q: clean column names with regex
+
+```{python}
+cleaning_practice = pd.DataFrame({"aloha":range(3), "bell chart":range(3), "animals@the zoo":range(3)})
+
+cleaning_practice
+```
+
+```{python}
+cleaning_practice.columns.str.replace(r"[^a-zA-Z0-9]","_", regex = True )
+```
+
+```{python}
+cleaning_practice.columns= cleaning_practice.columns.str.replace(r"[^a-zA-Z0-9]","_", regex = True )
+```
+
+```{python}
+cleaning_practice
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+0

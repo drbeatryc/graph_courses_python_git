@@ -1,0 +1,313 @@
+## Workshop 7: Using LLMs for Classification Tasks
+
+### Introduction
+
+In this week’s workshop, you’ll learn how to use Large Language Models (LLMs) for **classification tasks**. We’ll start with an example using epidemiology paper abstracts from medRxiv. Then, you’ll analyze job posting data from Glassdoor to extract structured information.
+
+## Imports 
+
+Run the chunk below to import the necessary packages, set your OpenAI API key, and initialize the OpenAI client.
+
+```{python}
+from openai import OpenAI
+import pandas as pd
+import numpy as np
+
+from local_settings import OPENAI_KEY
+
+client = OpenAI(api_key=OPENAI_KEY)
+```
+
+## Testing the chat function
+
+Below, we define a function `llm_chat` that takes a message and returns the response from the LLM.
+
+```{python}
+def llm_chat(message):
+    response = client.chat.completions.create(
+        model="gpt-4o-mini", messages=[{"role": "user", "content": message}]
+    )
+    return response.choices[0].message.content
+```
+
+Test the function with a quick query:
+
+```{python}
+llm_chat("What is Python (the programming language) named after?")
+```
+
+## Demo: Classifying Epidemiology Papers
+
+
+We'll import a dataset containing epidemiology papers parsed from medRxiv, with columns the `doi` (digital object identifier), `title`, and `abstract`.
+
+```{python}
+papers = pd.read_csv("https://raw.githubusercontent.com/the-graph-courses/pbb_2025_q1_materials/refs/heads/main/week_07_workshop/data/medrxiv_epi_papers_2023_jan.csv")
+papers.head()
+```
+
+### Classifying Disease Focus
+
+We want to categorize each paper as concerning **non-communicable diseases (NCD)**, **communicable diseases (CD)**, **both**, **neither**, or **not applicable**. To do this, we will create a function that takes the paper’s abstract, sends it to the LLM, and returns exactly one of those five categories.
+
+```{python}
+def classify_disease_focus(abstract):
+    prompt = f"""
+    We have an epidemiology research paper. The abstract is below. 
+    Classify the paper's disease focus as:
+    - "noncommunicable" (for diseases like cancer, diabetes, cardiovascular diseases, etc.)
+    - "communicable" (for infectious diseases caused by pathogens)
+    - "both" (if the study covers both communicable and non-communicable diseases)
+    - "neither" (if the abstract does not mention or focus on these disease categories)
+    - "na"
+
+    Return ONLY one of the above categories, nothing else.
+    
+    Abstract:
+    {abstract}
+    """
+    return llm_chat(prompt)
+
+
+# Vectorize the function so we can apply it to an entire column
+classify_disease_focus_vec = np.vectorize(classify_disease_focus)
+
+# Create a new column in the papers DataFrame
+papers["disease_focus"] = classify_disease_focus_vec(papers["abstract"])
+```
+
+Now check the distribution of results:
+
+```{python}
+papers["disease_focus"].value_counts()
+```
+
+This gives you a quick look at how many abstracts the model classified into each disease focus category. Sometimes, the output may require some cleaning. Let's do this by removing whitespace at the start and end of the string, remove non-alphabetic characters, and converting to lowercase.
+
+```{python}
+papers["disease_focus"] = papers["disease_focus"].str.strip().str.replace(r'[^a-zA-Z]', '', regex=True).str.lower()
+papers["disease_focus"].value_counts()
+```
+
+Now let's write this to a CSV file, where it will be easier to check whether the results make sense.
+
+```{python}
+papers.to_csv("data/epi_papers_disease_focus.csv", index=False)
+```
+
+# Your Turn: Using LLMs to Analyze Job Postings
+
+Now that you’ve seen a mini-introduction to classification with epidemiology papers, let’s move on to the main dataset for this workshop: **job postings** scraped from Glassdoor. 
+
+Download it from the website and place it in an appropriate location in your folder. 
+
+Load the data into a pandas dataframe:
+
+```{python}
+# Your code here
+jobs = pd.read_csv("data/glassdoor_jobs_sample.csv")
+jobs
+```
+# Task 1: Extracting Years of Experience Required
+
+## Part A: Create and Apply LLM Function
+
+We will use the LLM to extract the minimum years of experience required from job descriptions.
+
+We have written the prompt for you. Vectorize the function, then apply it on the `job_description` column of the dataframe. Create a column called `years_required` in the dataframe to store the results.
+
+```{python}
+def yrs_exp(description):
+    prompt = f"""
+    Extract the minimum years of experience required from this job description. 
+    Return ONLY a number. If a range is given, return the lower number.
+    If no years of experience are explicitly mentioned, return 'NA'.
+    Here's the job description:
+    {description}
+    """
+    return llm_chat(prompt)
+
+# Vectorize the function
+yrs_exp_vec = np.vectorize(yrs_exp)
+# Apply the function to the dataset
+```
+
+
+```{python}
+jobs["years_required"]= yrs_exp_vec(jobs["job_description"])
+
+```
+
+
+```{python}
+jobs["years_required"]
+```
+
+
+
+Write the data to a CSV file and check if the results make sense by comparing them to the original job descriptions.
+
+```{python}
+jobs["years_required"]= yrs_exp_vec(jobs["job_description"])
+```
+
+```{python}
+jobs.to_csv("outputs/jobs_output.csv")
+```
+
+## Part B: Convert to Numeric
+
+The `years_required` column is currently a string. Convert it to a numeric type using the `pd.to_numeric` function, with the `errors='coerce'` argument so that any non-numeric values are converted to `NaN`.
+
+```{python}
+# Your code here
+jobs = pd.read_csv("outputs/jobs_output.csv")
+jobs
+
+```
+
+```{python}
+jobs["years_required"] = pd.to_numeric(jobs["years_required"], errors='coerce')
+
+jobs["years_required"]
+```
+
+```{python}
+jobs.to_csv("outputs/jobs_output_updated.csv", index=False)
+```
+
+## Part C: Create Visualization
+
+Create a visualization comparing years of experience required to the midpoint salary estimate. You'll need to:
+
+- Create a scatter plot using Plotly Express.
+- Use the `midpoint_salary_estimate` column for salary and `years_required` for the x-axis.
+
+```{python}
+import plotly.express as px
+
+```
+
+```{python}
+fig = px.scatter(jobs, x="years_required", y="midpoint_salary_estimate", labels={"midpoint_salary_estimate": "salary"},title ="Years required against Salary" )
+
+fig.show()
+```
+
+Describe any relationships you see in the plot.
+# from the scatter plot most maximum salaries thus 150K was around year 4-5years 
+
+# Task 2: Extracting Programming Language Requirements
+
+In this task, we will ask the LLM to extract the programming languages mentioned in the job descriptions, either R, Python, both, or neither. Trying to do this using traditional regex methods would be difficult, because the string " R " is used in many different context in job descriptions, e.g. "R & D" or "HR", not always referring to the programming language R. But LLMs can (mostly) understand the context and extract the correct answer.
+
+
+
+```{python}
+
+
+## Part A: Create and Apply LLM Function
+
+Now, create a function that asks the model about the programming languages mentioned in the job description. Specifically, it should return one of four categories regarding the languages mentioned: "R", "Python", "both", or "neither". This time, you'll need to craft the prompt yourself.
+
+Apply your function to the dataset and create a new column `lang_req` in the dataframe to store the results.
+
+```{python}
+# Define the function here
+def extract_lang(description):
+    prompt = f""
+    Identify the programming languages mentioned in this job description. 
+    Return one of the following categories: "R", "Python", "both", or "neither".
+    Here's the job description:
+    {description}
+    ""
+    return llm_chat(prompt)
+
+# Vectorize the function
+extract_lang_vec = np.vectorize(extract_lang)
+```
+
+```{python}
+# Apply the function to the dataset
+
+jobs["lang_req"] = extract_lang_vec(jobs["job_description"])
+lang_counts = jobs["lang_req"].value_counts()
+print(lang_counts)
+
+```
+
+
+
+## Part B: Create Visualization
+
+First, count the number of jobs that require each of the four categories:
+
+```{python}
+# Your code here
+lang_counts = jobs["lang_req"].value_counts()
+print(lang_counts)
+```
+
+Create a box plot comparing salary distributions across the different programming language requirement categories:
+
+```{python}
+# Your code here: Create box plot using plotly express
+fig2 = px.box(jobs, x="lang_req", y="midpoint_salary_estimate",
+              labels={"midpoint_salary_estimate": "Salary"},
+              title="Salary Distribution by Programming Language Requirement")
+fig2.show()
+```
+
+Write a few sentences describing any patterns you see in the plot. (Note that this is a very small sample of jobs, so don't read too much into the results.)
+ #Observations from the salary distribution plot
+# The plot shows that jobs requiring both Python and R tend to have a wider salary range, 
+# while jobs requiring only Python tend to have higher median salaries. 
+# Jobs requiring neither language have the lowest salary range, suggesting that technical skills  correlate with higher pay. However, since this is a small sample, these trends should be interpreted cautiously.
+# There are some outliers in salary, particularly in roles requiring Python, which may indicate  high-paying specialized positions.
+
+
+
+
+# Optional Challenge: Most common technical skills overall 
+
+Use an LLM function to extract the most common technical skills mentioned in job descriptions, then create a visualization to illuminate the most common technical skills.
+
+You will need to design your own approach to extract and standardize technical skills, being explicit in your prompt about what constitutes a technical skill. 
+
+There's no single correct way to classify and standardize skills - document your choices and reasoning as you develop your solution.
+
+
+```{python}
+def extract_skills(description):
+    prompt = f""
+    Identify and list the most commonly mentioned technical skills in this job description.
+    Focus on programming languages, frameworks, databases, cloud platforms, and tools.
+    Return a comma-separated list of skills.
+    Here's the job description:
+    {description}
+    ""
+    return llm_chat(prompt)
+```
+
+
+```{python}
+
+# Vectorize function
+extract_skills_vec = np.vectorize(extract_skills)
+```
+
+
+```{python}
+# Apply function
+jobs["tech_skills"] = extract_skills_vec(jobs["job_description"])
+```
+
+
+```{python}
+jobs.to_csv("outputs/jobs_final.csv", index=False)
+```
+
+
+```{python}
+
+```

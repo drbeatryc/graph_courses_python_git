@@ -1,0 +1,84 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "---\n",
+        "title: \"India TB Pathways Analysis\"\n",
+        "author: \"Beatrice Edusei\"\n",
+        "format: html\n",
+        "---\n",
+        "\n",
+        "\n",
+        "# intro to dataset\n",
+        "\n",
+        "In this report, we analyze the India TB Pathways dataset\n"
+      ],
+      "id": "0e3b64fc"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# import packages\n",
+        "import pandas as pd\n",
+        "import plotly.express as px \n",
+        "import itables as it\n",
+        "\n",
+        "# load the dataset\n",
+        "df = pd.read_csv(\"C:/Users/eduse/OneDrive/Desktop/graph_courses_python/india.csv\")\n",
+        "print(df.head())\n",
+        "print(df.columns)"
+      ],
+      "id": "41c8dd95",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "The dataset  is seen above\n",
+        "\n",
+        "# Age vs Alcohol\n"
+      ],
+      "id": "8d943c02"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "#create a voilin plot of Age vs Alcohol\n",
+        "fig = px.histogram(df, \n",
+        "                   x=\"Age\", \n",
+        "                   color=\"Alcohol\",  \n",
+        "                   title=\"Distribution of Age and Alcohol consumption\",\n",
+        "                   barmode='group')  \n",
+        "\n",
+        "\n",
+        "fig.show()"
+      ],
+      "id": "0dbd20fd",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "![Map of Tamil Nadu. Vellore district is in the north-east.](C:\\Users\\eduse\\OneDrive\\Desktop\\graph_courses_python\\intro_to_quarto2\\images\\tndistrict_1.png)\n"
+      ],
+      "id": "b5482738"
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "display_name": "Python 3",
+      "language": "python",
+      "name": "python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}

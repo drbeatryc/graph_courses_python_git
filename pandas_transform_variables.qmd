@@ -1,0 +1,132 @@
+# imports
+
+
+```{python}
+import pandas as pd
+
+pd.options.mode.copy_on_write = True
+```
+
+# Dataset
+
+```{python}
+counties = pd.read_csv("data/us_counties_data.csv")
+counties
+```
+
+
+```{python}
+area_df = counties[["county","area_sq_miles","pop_20"]]
+area_df
+```
+
+# creating new variables
+
+```{python}
+# new var with area in sq km
+area_df["area_sq_km"] = area_df["area_sq_miles"]* 2.59
+area_df["area_sq_km"]
+area_df
+# new var with area in hectares
+area_df["area_hectares"] = area_df["area_sq_km"]* 100
+area_df["area_hectares"]
+
+area_df
+```
+
+# practice Q: area in acres
+
+```{python}
+area_df["area_sq_miles"]*640
+area_df["area_acres"] =area_df["area_sq_miles"]*640
+area_df["area_acres"] 
+
+area_df
+```
+
+# modifying existing variables
+
+
+```{python}
+area_df["area_sq_km"]. round(1)
+area_df["area_sq_km"] = area_df["area_sq_km"]. round(1)
+area_df["area_sq_km"]
+
+area_df
+
+```
+
+# practice Q: rounding area_acres
+```{python}
+area_df["area_acres"]. round(1)
+area_df["area_acres"] = area_df["area_acres"]. round(1)
+area_df["area_acres"] 
+
+area_df
+```
+
+# calculating with multpile variables
+
+
+```{python}
+area_df["pop_20"]/ area_df["area_sq_km"]
+area_df["pop_per_sq_km"] = (area_df["pop_20"]/ area_df["area_sq_km"]). round(1)
+area_df = area_df.sort_values(by="pop_per_sq_km",ascending=False)
+area_df
+```
+
+
+```{python}
+# practice Q : foriegn Born Percentage
+counties["foreign_born_num"] / counties["pop_20"]
+counties["foriegn_born_percentage"] =(counties["foreign_born_num"] / counties["pop_20"]) * 100
+counties= counties.sort_values(by="foriegn_born_percentage", ascending= False)
+
+# the two counties with the highest percentage is Miami-Dade,FL and Queens,NY
+
+counties
+```
+
+# creating Boolean Variables
+
+```{python}
+counties[["county","pop_change_2010_2020","pct_emp_change_2010_2021"]]
+changes_df=counties[["county","pop_change_2010_2020","pct_emp_change_2010_2021"]]
+changes_df
+```
+
+
+```{python}
+changes_df["pop_change_2010_2020"] > 0
+changes_df["pop_increase"]= changes_df["pop_change_2010_2020"] > 0
+
+changes_df["emp_increase"]= changes_df["pop_change_2010_2020"] > 0
+changes_df
+```
+
+
+```{python}
+changes_df.query("pop_increase &emp_increase")
+```
+
+
+```{python}
+# practice Q: creating a boolean variable
+counties["foriegn_born_percentage"] =(counties["foreign_born_num"] / counties["pop_20"]) * 100
+counties["foreign_born_pct_gt_30"] = counties["foriegn_born_percentage"] > 30
+counties
+
+counties.query("foreign_born_pct_gt_30")
+```
+
+#  copy on write warning
+
+
+```{python}
+pd.options.mode.copy_on_write = True
+counties_mini= counties[["county","area_sq_miles"]]
+counties_mini
+counties_mini["area_sq_miles"] = counties_mini["area_sq_miles"].round(2)
+counties_mini
+
+```

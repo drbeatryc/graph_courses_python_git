@@ -1,0 +1,180 @@
+
+
+
+```{python}
+import pandas as pd
+import plotly.express as px
+
+```
+
+
+```{python}
+# Temperatures dataset
+temperatures = pd.DataFrame(
+    {
+        "country": ["Sweden", "Denmark", "Norway"],
+        "1994": [1, 2, 3],
+        "1995": [3, 4, 5],
+        "1996": [5, 6, 7],
+    }
+)
+
+# Fuels Wide dataset
+fuels_wide = pd.read_csv(
+    "https://raw.githubusercontent.com/the-graph-courses/idap_book/main/data/oil_per_capita_wide.csv"
+)
+
+# Eurostat Births Wide dataset
+euro_births_wide = pd.read_csv(
+    "https://raw.githubusercontent.com/the-graph-courses/idap_book/main/data/euro_births_wide.csv"
+)
+
+# Contracts dataset
+contracts = pd.read_csv(
+    "https://raw.githubusercontent.com/the-graph-courses/idap_book/main/data/chicago_contracts_20_23.csv"
+)
+
+# Population dataset
+population = pd.read_csv(
+    "https://raw.githubusercontent.com/the-graph-courses/idap_book/main/data/tidyr_population.csv"
+)
+temperatures
+```
+
+
+## practice question: wide or long
+THis data is in a wide format
+
+
+
+## when to use wide and long Data
+wide: displaying information
+long: Analysis or plotting
+
+## from wide to long with melt
+
+```{python}
+fuels_wide
+```
+
+
+```{python}
+fuels_wide.melt(id_vars=["Entity","Code"]).sort_values(["Entity","variable"])
+```
+
+
+```{python}
+fuels_long = fuels_wide.melt(
+    id_vars=['Entity', 'Code'],
+    var_name='year',
+    value_name='oil_consumption'
+).sort_values(by=['Entity', 'year'])
+fuels_long
+```
+
+
+```{python}
+fuels_long['year'] = fuels_long['year'].str.replace('y_', '').astype(int)
+fuels_long
+```
+
+
+
+```{python}
+temperatures
+```
+
+
+```{python}
+temperatures_long = temperatures.melt(id_vars=["country"], var_name="year", value_name="avg_temp")
+temperatures_long
+```
+
+
+## practice Q: Eurostat Birth to long
+
+```{python}
+euro_births_wide.head()
+```
+
+```{python}
+euro_births_long = euro_births_wide.melt(id_vars=["country"],var_name="year",value_name="births_count")
+euro_births_long
+```
+
+
+```{python}
+euro_births_long['year'] = euro_births_long['year'].astype(str).str.replace('X', '', regex=True).astype(int)
+euro_births_long
+```
+
+## using long data for analysis
+
+
+```{python}
+fuels_long
+```
+
+long data easy to extract statistics
+
+```{python}
+# average oil consumption per country
+fuels_long.groupby("Entity")["oil_consumption"].mean()
+```
+
+wide data not so much:
+
+```{python}
+fuels_wide[['y_1970', 'y_1980', 'y_1990', 'y_2000', 'y_2010', 'y_2020']].mean(axis=1)
+```
+
+long data is easier to plt
+
+
+
+```{python}
+subset = fuels_long.query('Entity in ["Peru", "Iran", "China"]')
+subset
+```
+
+
+```{python}
+px.line(subset, x='year', y='oil_consumption', color='Entity', title='Average Fossil Fuel Consumption per Country')
+```
+
+
+
+```{python}
+# number of contracts per state per year
+contracts_summary = contracts.groupby("state")["year"].value_counts().reset_index()
+contracts_summary
+```
+
+
+```{python}
+contracts_summary.pivot(columns="year",index="state", values="count").reset_index()
+```
+
+
+```{python}
+# converting to wide format
+contracts_summary.pivot(columns="state",index="year", values="count").reset_index()
+```
+
+
+# practice ": temperature back to wide"
+
+```{python}
+temperatures_long.pivot(columns="country", index="year", values= "avg_temp")
+```
+
+## practice : Population to wide 
+
+```{python}
+population
+```
+
+
+```{python}
+population.pivot(columns="year",index="country", values="population")
+```

@@ -1,0 +1,55 @@
+---
+title : "My first Quarto Doc"
+author: "Beatrice Edusei"
+format: html
+execute:
+    echo: false
+    
+---
+
+# Level 1 Header
+
+markdown lets you use *italics* and also **embolden** text
+
+you can also define bulleted lists:
+
+- First element
+- Second element
+
+you can also add [links](https://thegraphcourses.org)
+
+you can also embed images 
+
+![description of the image](images/tgc_unity-768x568.png)
+
+
+
+## Level 2 header
+
+## Level 3 Header
+
+Hello
+
+#section2
+
+World
+
+
+```{python}
+2+2
+```
+
+```{python}
+for num in[1,2,3]:
+    print(num)
+```
+
+# displaying tables
+
+```{python}
+import plotly.express as px 
+from itables import show
+
+tips = px.data.tips()
+show(tips)
+```

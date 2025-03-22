@@ -1,0 +1,211 @@
+
+# imports
+
+
+```{python}
+import pandas as pd
+```
+
+# Dataset
+
+
+```{python}
+yaounde = pd.read_csv("data/yaounde_data.csv")
+```
+
+
+```{python}
+yao = yaounde[["age","sex", "weight_kg","neighborhood","occupation","symptoms", "is_smoker","is_pregnant","igg_result","igm_result"]]
+yao
+```
+
+# introduce query function
+
+
+```{python}
+yao.query("sex== 'Male'"). shape[0]
+```
+
+```{python}
+# queries do not modify the dataframe itself
+
+yao.query('sex== "Male"')
+yao_male = yao.query('sex == "Male"')
+yao_male
+```
+
+# practiceQ : subtset for the pregnant respondents
+
+
+```{python}
+yao.query('is_pregnant == "Yes"')
+yao_pregnant = yao.query('is_pregnant == "Yes"')
+yao_pregnant
+```
+
+
+```{python}
+yao.query("sex == 'Male'") # equal to
+yao.query("sex != 'Male'") # not equal to
+
+yao.query("age > 7") # greater than
+yao.query("age >= 7") # greater than or equal to
+```
+
+```{python}
+ # isin
+yao.query("neighborhood.isin(['Briqueterie','Carriere'])")
+```
+
+# practice Q
+
+```{python}
+# practice Q
+yao.query("age < 18") 
+yao_children =yao.query("age < 18") 
+yao_children
+```
+
+
+```{python}
+yao.query("neighborhood.isin(['Carriere', 'Ekoudou'])")
+yao_carriere_ekoudou =yao.query("neighborhood.isin(['Carriere', 'Ekoudou'])") 
+yao_carriere_ekoudou
+```
+
+# accessing  external variable
+
+```{python}
+min_age = 25
+
+yao.query("age >= @min_age")
+```
+
+# practice Q: subset for young respondents
+
+```{python}
+max_age = 30
+
+yao.query("age <= @max_age")
+yao_young = yao.query("age <= @max_age")
+yao_young
+```
+
+# combining conditions
+
+```{python}
+# age less than 18 or age greater than 65
+yao.query("age < 18 | age > 65")
+```
+
+```{python}
+# either pregnant or ex-smokers
+yao.query('is_pregnant =="Yes" | is_smoker == "Ex-smoker"')
+```
+
+
+```{python}
+yao.is_smoker
+yao.is_smoker. value_counts()
+```
+
+# practice ": subset for igG positive men"
+
+```{python}
+yao.query('igg_result == "Positive"')
+yao.query('sex == "Male"')
+yao.query('igg_result == "Positive" | sex == "Male"')
+```
+
+
+```{python}
+yao.query('igg_result == "Positive" & sex == "Male"')
+yao_igg_positive_men = yao.query('igg_result == "Positive" & sex == "Male"')
+yao_igg_positive_men
+```
+
+# negating conditions with the ~ operator
+
+
+```{python}
+# return individuals who do not fulfil the conditions
+yao.query("~(occupation == 'Student')")
+```
+
+
+```{python}
+# equivalent to :
+yao.query("occupation != 'Student'")
+```
+
+
+```{python}
+yao.query("~(age <18 | weight_kg < 30)")
+```
+
+# practice Q: Drop Smokers and drop those above 50
+
+```{python}
+yao.query("age > 50 ")
+yao.query("is_smoker == 'Smoker'")
+
+yao.query("age > 50 & is_smoker == 'Smoker'" )
+```
+
+```{python}
+yao.query("~(age > 50 & is_smoker == 'Smoker')")
+yao_dropped = yao.query("~(age > 50 & is_smoker == 'Smoker')")
+yao_dropped
+```
+
+# NaN values 
+
+```{python}
+# yao.query("is_pregnant == 'NaN'")
+# tis does not work
+```
+
+```{python}
+yao.query("is_pregnant.isna()")
+```
+
+```{python}
+yao.query("is_pregnant.notna()")
+```
+
+# practice Q: keep missing smoking status
+
+```{python}
+yao.query("is_smoker.isna()")
+```
+
+```{python}
+yao.occupation.value_counts()
+```
+
+```{python}
+# values containing the string student
+yao.query("occupation. str. contains('Student')")
+```
+
+
+```{python}
+# values not containg string student
+yao.query("~(occupation. str. contains('Student'))")
+```
+
+
+```{python}
+# contains student or farmer 
+yao.query("occupation. str. contains('Student|Farmer')")
+```
+
+# practice Q: symptoms
+
+```{python}
+yao.symptoms.value_counts()
+
+yao.query("symptoms.str.contains('Cough|Fever')")
+```
+
+

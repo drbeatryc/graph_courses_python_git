@@ -1,0 +1,196 @@
+
+
+
+```{python}
+import pandas as pd
+import numpy as np
+import vega_datasets as vd
+import plotly.express as px
+```
+
+## intro to replace
+
+
+```{python}
+tips= px.data.tips()
+tips["day"].value_counts()
+```
+
+
+```{python}
+day_mapping ={
+    "Sun":"Sunday",
+    "Sat": "Saturday",
+    "Thur":"Thursday",
+    "Fri":"Friday"
+}
+
+tips["day_full"]= tips["day"].replace(day_mapping)
+tips["day_full"]
+tips
+```
+
+# Practice Q: abbreviate Sex
+
+
+```{python}
+ tips["sex"]
+```
+
+
+```{python}
+sex_mapping ={"Male":"M","Female":"F"}
+
+
+tips["sex"].replace(sex_mapping)
+sex_abbr =tips["sex"].replace(sex_mapping)
+
+```
+
+
+```{python}
+tips["sex_abbr"] =sex_abbr
+tips
+```
+
+# handling missing values with replace()
+
+
+```{python}
+movies= vd.data.movies()
+movies["Creative_Type"].value_counts(dropna= False)
+```
+
+
+```{python}
+# Replacing None Values with string
+movies["Creative_Type"] = movies["Creative_Type"].replace({None:"Unknown/Unclear"})
+movies["Creative_Type"].value_counts(dropna= False)
+```
+
+
+```{python}
+# Replacing NaN values with a number
+movies["US_DVD_Sales"].tail(10)
+movies["US_DVD_Sales"] = movies["US_DVD_Sales"].replace({np.nan:0})
+```
+
+
+```{python}
+movies["US_DVD_Sales"].tail(10)
+```
+
+# practice Q: 
+
+```{python}
+movies_mapping ={"None":"Unrated",
+"Not Rated":"Unrated"}
+```
+
+
+
+```{python}
+movies["MPAA_Rating"].tail(10)
+movies["MPAA_Rating"] = movies["MPAA_Rating"].replace({np.nan:"Unrated"})
+```
+
+
+```{python}
+movies["MPAA_Rating"].value_counts
+
+movies
+```
+
+# Categorizing NUmeric Data with customs Functions
+
+
+```{python}
+def categ_gross(gross):
+    if gross < 10000000:
+        return "Low"
+    elif gross >= 10000000 and gross <50000000:
+        return "Medium"
+    elif gross > 50000000:
+        return "High" 
+    else:
+        return None  
+
+categ_gross_vec =np.vectorize(categ_gross) 
+categ_gross_vec([700,4000,30])          
+```
+
+```{python}
+movies["gross_category"]=categ_gross_vec(movies["US_Gross"])
+movies["gross_category"]
+```
+
+
+## complex Transformations with Custom Functions
+
+
+```{python}
+def  flag_movie(movie_type,us,worldwide):
+    if movie_type == "Super Hero" and us == worldwide:
+        return "US action movie"
+    elif movie_type == "Super Hero" and worldwide > us:
+        return "Global action movie"   
+    else:
+        return None    
+flag_movie_vec = np.vectorize(flag_movie)
+```
+
+7
+```{python}
+flag_movie(movie_type = "Super Hero", us = 100, worldwide = 100)
+
+flag_movie(movie_type = "Super Hero", us = 100, worldwide = 200)
+flag_movie(movie_type = "Comedy", us = 100, worldwide = 100)
+```
+
+
+```{python}
+
+```
+
+
+```{python}
+movies["Action_Flag"] = flag_movie_vec(movie_type=movies["Creative_Type"],us=movies["US_Gross"], worldwide=movies["Worldwide_Gross"])
+
+movies["Action_Flag"].value_counts()
+```
+
+
+# Practice Q: flag movies based on ratings
+
+
+
+
+```{python}
+def categorize_movie(rt, imdb):  # Use function parameters
+    if rt > 70 and imdb < 5:
+        return "Critic-friendly"
+    elif rt < 50 and imdb > 7:
+        return "Commercial"
+    else:
+        return "Other"
+
+```
+
+
+
+```{python}
+categorize_movie_vec = np.vectorize(categorize_movie)
+
+```
+
+
+```{python}
+movies["movies_ratings"] = categorize_movie_vec(movies["Rotten_Tomatoes_Rating"], movies["IMDB_Rating"])
+
+
+
+```
+
+```{python}
+movies["movies_ratings"].value_counts()
+```

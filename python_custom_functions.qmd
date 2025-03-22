@@ -1,0 +1,251 @@
+
+# imports
+
+
+```{python}
+import pandas as pd
+import numpy as np
+import vega_datasets as vd
+```
+
+# basics of a function
+
+
+```{python}
+def pds_to_kg(pounds):
+    return pounds * 0.4536
+```
+
+
+```{python}
+pds_to_kg(150)
+```
+
+
+```{python}
+def pds_to_kg(pounds):
+    kg= pounds * 0.4536
+    return kg
+```
+
+```{python}
+pds_to_kg(150)
+```
+
+
+```{python}
+pounds_df = pd.DataFrame({"pounds":[150,200,250]})
+pounds_df
+```
+
+
+```{python}
+pounds_df["kg"] = pds_to_kg(pounds_df["pounds"])
+pounds_df
+```
+
+# practice Q: age in months
+
+```{python}
+riots_df = vd.data.la_riots()
+riots_df
+```
+
+
+```{python}
+def years_to_months(age_years):
+    return age_years * 12
+
+```
+
+```{python}
+years_to_months(23)
+
+```
+
+```{python}
+riots_df["age_months"]  =years_to_months(riots_df["age"])
+```
+
+
+```{python}
+riots_df
+```
+
+# Functions with multiple Arguments
+
+
+```{python}
+def calc_calories(carb_grams, protein_grams, fat_grams):
+    result = (carb_grams * 4) + (protein_grams * 4) + (fat_grams * 9)
+    return result
+```
+
+
+```{python}
+calc_calories(carb_grams=50, protein_grams=25, fat_grams=15)
+```
+
+
+```{python}
+#Does not work ddue to missing argument
+#calc_calories(carb_grams=20)
+```
+
+
+```{python}
+def calc_calories2(carb_grams=0, protein_grams=0, fat_grams=0):
+    result = (carb_grams * 4) + (protein_grams * 4) + (fat_grams * 9)
+    return result
+```
+
+
+```{python}
+calc_calories2(carb_grams=20)
+```
+
+
+
+```{python}
+food_df = pd.DataFrame({
+    "food":["Apple","Avocado"],
+    "carb":[25,10],
+    "protein":[0,1],
+    "fat":[0,14]
+})
+food_df
+```
+
+
+```{python}
+food_df["calories"] = calc_calories2(carb_grams=food_df["carb"],protein_grams=food_df["protein"],fat_grams=food_df["fat"] )
+
+food_df
+```
+
+# practice Q: BMI function
+
+```{python}
+def calc_bmi(weight, height):
+    return weight/(height**2)
+```
+
+
+
+```{python}
+bmi_df = pd.DataFrame({
+    "Weight":[70,80,90],
+    "Height":[1.7,1.8,1.2]
+})
+
+bmi_df["BMI"] = calc_bmi(bmi_df["Weight"],bmi_df["Height"])
+
+bmi_df
+```
+
+# introduction to conditionals
+
+
+```{python}
+def class_num(num):
+    if num>0:
+        return "positive"
+    elif num < 0:
+        return "negative"
+    elif num == 0:
+        return "zero"
+
+
+
+print(class_num(-5))  
+print(class_num(0))    
+print(class_num(5))   
+print(class_num(np.nan)) 
+```
+
+
+```{python}
+num_df= pd.DataFrame({"num":[10,-5,0]})
+num_df
+```
+
+
+```{python}
+# this does not work
+class_num_num_df["num"]
+
+```
+
+
+```{python}
+class_num_vec = np.vectorize(class_num)
+```
+
+```{python}
+num_df["category"] = class_num_vec(num_df["num"])
+
+num_df
+```
+
+## grading example
+
+
+```{python}
+def grade_cat(grade):
+    if grade >= 85:
+        return "Excellent"
+    elif grade >= 60 and grade < 85:
+        return "Pass"
+    elif  grade >=0 and grade < 60:
+        return "fail" 
+    else:
+        return "Invalid grade"
+
+print(grade_cat(78))
+```
+
+
+```{python}
+grade_cat_vec = np.vectorize(grade_cat)
+```
+
+
+```{python}
+grade_cat_vec([78,45,89])
+```
+
+# Practice Q: Age categorization
+
+
+```{python}
+def age_cat(age):
+    if age >=18 and age < 65:
+        return "Adult"
+    elif age >= 65:
+        return "Senoir"
+    else:
+        return "Invalid age"
+```
+
+
+```{python}
+age_cat_vec = np.vectorize(age_cat)
+```
+
+```{python}
+riots_df
+```
+
+
+
+```{python}
+riots_df["age_categories"]= age_cat_vec(riots_df["age"])
+riots_df
+```
+
+# other ways to apply a similar recoding on a dataframe
+
+- apply()
+- np.select()
+- np.where()
+- pd.cut()

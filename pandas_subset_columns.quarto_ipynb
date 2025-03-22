@@ -1,0 +1,151 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# subsetting columns\n",
+        "\n",
+        "# imports\n"
+      ],
+      "id": "84cc6f39"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import pandas as pd"
+      ],
+      "id": "f90d12de",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# dataset\n"
+      ],
+      "id": "44394ea4"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "yao = pd.read_csv(\"data/yaounde_data.csv\")\n",
+        "yao"
+      ],
+      "id": "81cf4bb4",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# selecting colums with square brackets\n"
+      ],
+      "id": "3620d374"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "yao[[\"age\", \"sex\"]]"
+      ],
+      "id": "f88bada8",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# this code does not work\n",
+        "# yao[\"age\",\"sex\"]"
+      ],
+      "id": "7819cb22",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "yao[\"age\"]"
+      ],
+      "id": "05ed6717",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "yao_subset = yao[[\"age\",\"sex\"]]"
+      ],
+      "id": "b5bc76db",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## storing data subsets\n"
+      ],
+      "id": "05570a44"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "yao_subset"
+      ],
+      "id": "548a9bf0",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "yao_subset = yao_subset[[\"age\"]]\n",
+        "yao_subset"
+      ],
+      "id": "cbecaeab",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# practice Q: select columns with[]\n",
+        " use the [] operator to select the weight_kg and height_cm variables in the yao data frame. assign the result to a new dataframe called yao_weight_height\n"
+      ],
+      "id": "9da07ceb"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "md-indent": " "
+      },
+      "source": [
+        "yao[[\"weight_kg\",\" height_cm \"]]"
+      ],
+      "id": "fe18f3f7",
+      "execution_count": null,
+      "outputs": []
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "display_name": "Python 3",
+      "language": "python",
+      "name": "python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}

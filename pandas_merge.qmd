@@ -1,0 +1,440 @@
+
+
+```{python}
+import pandas as pd
+
+
+# TB incidence in Africa
+tb_2019_africa = pd.read_csv(
+    "https://raw.githubusercontent.com/the-graph-courses/idap_book/main/data/tb_incidence_2019.csv"
+) 
+
+# Health expenditure data
+health_exp_2019 = pd.read_csv(
+    "https://raw.githubusercontent.com/the-graph-courses/idap_book/main/data/health_expend_per_cap_2019.csv"
+)
+
+# Highest expenditure countries
+highest_exp = health_exp_2019.sort_values("expend_usd", ascending=False).head(70)
+
+# TB cases in children
+tb_cases_children = pd.read_csv(
+    "https://raw.githubusercontent.com/the-graph-courses/idap_book/main/data/tb_cases_children_2012.csv"
+).dropna()
+
+# Country continents data
+country_continents = pd.read_csv(
+    "https://raw.githubusercontent.com/the-graph-courses/idap_book/main/data/country_continents.csv"
+)
+
+# people data
+people = pd.DataFrame({"name": ["Alice", "Bob", "Charlie"], "age": [25, 32, 45]})
+
+# Test information
+test_info = pd.DataFrame(
+    {
+        "name": ["Alice", "Bob", "Charlie"],
+        "test_date": ["2023-06-05", "2023-08-10", "2023-07-15"],
+        "result": ["Negative", "Positive", "Negative"],
+    }
+)
+
+# Disordered test information
+test_info_disordered = pd.DataFrame(
+    {
+        "name": ["Bob", "Alice", "Charlie"],  # Bob in first row
+        "test_date": ["2023-08-10", "2023-06-05", "2023-07-15"],
+        "result": ["Positive", "Negative", "Negative"],
+    }
+)
+
+# Multiple test information
+test_info_multiple = pd.DataFrame(
+    {
+        "name": ["Alice", "Alice", "Bob", "Charlie"],
+        "test_date": ["2023-06-05", "2023-06-06", "2023-08-10", "2023-07-15"],
+        "result": ["Negative", "Negative", "Positive", "Negative"],
+    }
+)
+
+# Test information with different name
+test_info_different_name = pd.DataFrame(
+    {
+        "first_name": ["Alice", "Bob", "Charlie"],
+        "test_date": ["2023-06-05", "2023-08-10", "2023-07-15"],
+        "result": ["Negative", "Positive", "Negative"],
+    }
+)
+
+# Test information including Xavier
+test_info_xavier = pd.DataFrame(
+    {
+        "name": ["Alice", "Bob", "Xavier"],
+        "test_date": ["2023-06-05", "2023-08-10", "2023-05-02"],
+        "result": ["Negative", "Positive", "Negative"],
+    }
+)
+
+# Students data
+students = pd.DataFrame(
+    {"student_id": [1, 2, 3], "name": ["Alice", "Bob", "Charlie"], "age": [20, 22, 21]}
+)
+
+# Exam dates data
+exam_dates = pd.DataFrame(
+    {"student_id": [1, 3], "exam_date": ["2023-05-20", "2023-05-22"]}
+)
+
+# Employee details
+employee_details = pd.DataFrame(
+    {
+        "id_number": ["E001", "E002", "E003"],
+        "full_name": ["Emily", "Frank", "Grace"],
+        "department": ["HR", "IT", "Marketing"],
+    }
+)
+
+# Performance reviews
+performance_reviews = pd.DataFrame(
+    {
+        "employee_code": ["E001", "E002", "E003"],
+        "review_type": ["Annual", "Mid-year", "Annual"],
+        "review_date": ["2022-05-10", "2023-09-01", "2021-12-15"],
+    }
+)
+
+# Sales data
+sales_data = pd.DataFrame(
+    {
+        "salesperson_id": [1, 4, 8],
+        "product": ["Laptop", "Smartphone", "Tablet"],
+        "date_of_sale": ["2023-01-15", "2023-03-05", "2023-02-20"],
+    }
+)
+
+# Salesperson peoples
+salesperson_peoples = pd.DataFrame(
+    {
+        "salesperson_id": [1, 2, 3, 5, 8],
+        "name": ["Alice", "Bob", "Charlie", "Diana", "Eve"],
+        "age": [28, 45, 32, 55, 40],
+        "gender": ["Female", "Male", "Male", "Female", "Female"],
+    }
+)
+
+# Total sales data
+total_sales = pd.DataFrame(
+    {
+        "product": [
+            "Laptop",
+            "Desktop",
+            "Tablet",
+            "Smartphone",
+            "Smartwatch",
+            "Headphones",
+            "Monitor",
+            "Keyboard",
+            "Mouse",
+            "Printer",
+        ],
+        "total_units_sold": [9751, 136, 8285, 2478, 3642, 5231, 1892, 4267, 3891, 982],
+    }
+)
+
+# Product feedback data
+product_feedback = pd.DataFrame(
+    {
+        "product": [
+            "Laptop",
+            "Desktop",
+            "Tablet",
+            "Smartphone",
+            "Smartwatch",
+            "Headphones",
+            "Monitor",
+            "Gaming Console",
+            "Camera",
+            "Speaker",
+        ],
+        "n_positive_reviews": [1938, 128, 842, 1567, 723, 956, 445, 582, 234, 678],
+        "n_negative_reviews": [42, 30, 56, 89, 34, 28, 15, 11, 8, 25],
+    }
+)
+
+# Sales incidence data
+sales = pd.DataFrame(
+    {
+        "year": [2010, 2011, 2014, 2016, 2017],
+        "sales_count": [69890, 66507, 59831, 58704, 59151],
+    }
+)
+
+# Customer complaints data
+customer_complaints = pd.DataFrame(
+    {
+        "year": [2011, 2013, 2015, 2016, 2019],
+        "complaints_count": [1292, 1100, 1011, 940, 895],
+    }
+)
+
+
+employees = pd.DataFrame(
+    {"employee_id": [1, 2, 3], "name": ["John", "Joy", "Khan"], "age": [32, 28, 40]}
+)
+
+training_sessions = pd.DataFrame(
+    {
+        "employee_id": [1, 2, 3],
+        "training_date": ["2023-01-20", "2023-02-20", "2023-05-15"],
+    }
+)
+
+customer_details = pd.DataFrame(
+    {
+        "id_number": ["A001", "B002", "C003"],
+        "full_name": ["Alice", "Bob", "Charlie"],
+        "address": ["123 Elm St", "456 Maple Dr", "789 Oak Blvd"],
+    }
+)
+
+# Order Records
+order_records = pd.DataFrame(
+    {
+        "customer_code": ["A001", "B002", "C003"],
+        "product_type": ["Electronics", "Books", "Clothing"],
+        "order_date": ["2022-05-10", "2023-09-01", "2021-12-15"],
+    }
+)
+```
+
+
+## why do we need joins?
+
+```{python}
+people
+```
+
+
+```{python}
+test_info
+```
+
+
+```{python}
+pd.concat([people,test_info],axis= 1)
+```
+
+
+```{python}
+test_info_disordered
+```
+
+
+```{python}
+pd.concat([people,test_info_disordered],axis= 1
+```
+
+```{python}
+test_info_multiple
+```
+
+
+```{python}
+pd.concat([people,test_info_multiple],axis= 1)
+```
+
+
+```{python}
+pd.merge(people,test_info)
+```
+
+## pd.merge syntax
+
+
+```{python}
+pd.merge(left= people, right= test_info)
+
+```
+
+
+```{python}
+# on argument
+# this argument defines the key
+pd.merge(people,test_info)
+
+# on argument is optional as long as your key has the same name in both dataset.
+```
+
+
+```{python}
+test_info_different_name
+```
+
+
+```{python}
+pd.merge(people, test_info_different_name, left_on='name', right_on='first_name')
+```
+
+
+# practice Q:Join Employees and Training
+
+```{python}
+employees
+```
+
+
+```{python}
+training_sessions
+```
+
+there will be 4 columns and 3 rows after joining these two datasets.
+
+
+```{python}
+pd.merge(employees,training_sessions)
+```
+
+# practice with "on"
+
+
+```{python}
+customer_details
+```
+
+
+```{python}
+order_records
+```
+
+
+```{python}
+pd.merge(customer_details,order_records, left_on="id_number", right_on="customer_code")
+```
+
+# types of joins 
+## left
+
+
+```{python}
+people
+```
+
+
+```{python}
+test_info_xavier
+```
+
+
+```{python}
+pd.merge(people,test_info_xavier, how="left")
+```
+
+
+```{python}
+pd.merge(test_info_xavier, people, how= "left")
+```
+
+# practice Q: left join students and exams  dates
+
+
+```{python}
+students
+```
+
+
+```{python}
+exam_dates
+```
+
+
+```{python}
+pd.merge(students,exam_dates, how="left")
+```
+
+## Analysing African TB  incidence and Health Expenditure
+
+study on TB in Africa
+
+```{python}
+tb_2019_africa
+```
+
+
+```{python}
+health_exp_2019
+```
+
+
+```{python}
+pd.merge(tb_2019_africa,health_exp_2019, how="left")
+```
+
+
+
+# Practice Q: left join TB
+
+```{python}
+tb_cases_children
+```
+
+
+```{python}
+country_continents
+```
+
+
+```{python}
+tb_cases_children_enriched = pd.merge(
+    tb_cases_children, 
+    country_continents, 
+    left_on="country", 
+    right_on="country.name.en", 
+    how="left"
+)
+tb_cases_children_enriched
+```
+
+
+## Right join
+
+```{python}
+pd.merge(test_info_xavier, people, how= "right")
+```
+
+```{python}
+pd.merge( people,test_info_xavier, how= "right")
+```
+
+## inner join
+
+
+```{python}
+pd.merge( people,test_info_xavier, how= "inner")
+```
+
+
+# Practice Q: Inner
+
+```{python}
+total_sales
+```
+
+
+```{python}
+product_feedback
+```
+
+```{python}
+pd.merge( total_sales,product_feedback, how= "inner")
+```
+
+# There are 7 products that are common among the  two datasets
+
+# Laptop is the product that has the highest ratio of positive reviews to units sold
+
+
+## outer join
+
+```{python}
+pd.merge( people,test_info_xavier, how= "outer")
+```

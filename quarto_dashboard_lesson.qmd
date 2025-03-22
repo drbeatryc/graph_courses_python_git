@@ -1,0 +1,32 @@
+---
+title : "Gapminder 2007"
+format: dashboard
+    
+---
+
+
+```{python}
+import plotly.express as px
+p= px.line(y=[1,2,3])
+p
+```
+
+# Page 1
+
+## Row{height="30%"}
+
+### column{width="20%"}
+
+```{python}
+p
+```
+
+# Page2
+
+## Row{height="70%"}
+
+### column{width="80%"}
+
+```{python}
+p
+```
