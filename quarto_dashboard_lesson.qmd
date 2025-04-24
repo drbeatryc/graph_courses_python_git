@@ -1,6 +1,7 @@
 ---
 title : "Gapminder 2007"
 format: dashboard
+theme: superhero
     
 ---
 
@@ -11,21 +12,96 @@ p= px.line(y=[1,2,3])
 p
 ```
 
-# Page 1
+# Layout
 
 ## Row{height="30%"}
-
-### column{width="20%"}
+### Column{width="20%"}
 
 ```{python}
 p
 ```
 
-# Page2
+### Column{width="80%"}
+
+```{python}
+p
+```
+
 
 ## Row{height="70%"}
 
-### column{width="80%"}
+```{python}
+p
+```
+
+
+# Tabset
+
+## Row{height="30%"}
+
+### Column{.tabset width="20%"}
+
+#### Tab 1
+
+```{python}
+p
+```
+
+#### Tab 2
+Hello World
+
+
+### Column{width="80%"}
+
+```{python}
+p
+```
+
+## Row{.tabset height="70%"}
+
+### Tab1
+
+```{python}
+p
+```
+
+### Tab 2
+
+Hello World
+
+# Value Boxes
+
+```{python}
+tips = px.data.tips()
+num_cols = tips.shape[1]
+num_rows = tips.shape[0]
+```
+
+## {height="20%"}
+
+:::{.valuebox title= "Columns" color="secondary" icon ="heart"}
+`{python} num_cols`
+
+few columns
+:::
+
+:::{.valuebox title="Rows" color="primary" icon="arrow-down"}
+`{python}num_rows`
+
+Many rows
+:::
+
+:::{.valuebox title="Medium Number" color="#5ba3b6" icon="bar-chart"}
+1
+:::
+
+
+
+```{python}
+p
+```
+
+##
 
 ```{python}
 p
