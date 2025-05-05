@@ -1,20 +1,18 @@
 ---
-title : "Gapminder 2007"
+title: "Gapminder 2007"
 format: dashboard
 theme: superhero
-    
 ---
 
-
 ```{python}
-import plotly.express as px
-p= px.line(y=[1,2,3])
-p
+import plotly.express as px 
+p = px.line(y=[1,2,3])
 ```
 
 # Layout
 
 ## Row{height="30%"}
+
 ### Column{width="20%"}
 
 ```{python}
@@ -27,15 +25,14 @@ p
 p
 ```
 
-
 ## Row{height="70%"}
 
 ```{python}
 p
 ```
 
-
 # Tabset
+
 
 ## Row{height="30%"}
 
@@ -60,46 +57,41 @@ p
 ## Row{.tabset height="70%"}
 
 ### Tab1
-
 ```{python}
 p
 ```
 
-### Tab 2
-
+### Tab2
 Hello World
 
 # Value Boxes
 
 ```{python}
 tips = px.data.tips()
-num_cols = tips.shape[1]
+tips
+num_cols =tips.shape[1]
 num_rows = tips.shape[0]
 ```
 
-## {height="20%"}
 
-:::{.valuebox title= "Columns" color="secondary" icon ="heart"}
+
+## {height="20%"}
+::: {.valuebox title= "Number of Columns" color="primary" icon= "heart"}
 `{python} num_cols`
 
-few columns
+Few colums
 :::
 
-:::{.valuebox title="Rows" color="primary" icon="arrow-down"}
-`{python}num_rows`
+:::{.valuebox title= "Number of Rows" color="secondary" icon= "arrow-down"}
+`{python} num_rows`
 
-Many rows
 :::
 
-:::{.valuebox title="Medium Number" color="#5ba3b6" icon="bar-chart"}
+
+::: {.valuebox title="Medium Number" color="#2596be" icon="bar-chart" }
 1
 :::
 
-
-
-```{python}
-p
-```
 
 ##
 
