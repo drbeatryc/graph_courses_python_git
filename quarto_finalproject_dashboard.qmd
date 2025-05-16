@@ -1,0 +1,169 @@
+---
+title: "Final Project"
+author: "Beatrice Edusei"
+format: dashboard
+theme: superhero
+page-navigation: true
+---
+
+
+```{python}
+import pandas as pd
+import plotly.express as px
+```
+
+
+```{python}
+lex = pd.read_csv('data/lex.csv') 
+```
+
+```{python}
+mortality = pd.read_csv("data/child_mortality_0_5_year_olds_dying_per_1000_born.csv")
+```
+
+
+```{python}
+
+# Clean column names
+lex = lex.rename(columns={"country": "Country"})
+mortality = mortality.rename(columns={"country": "Country"})
+
+# Convert from wide to long format
+lex_long = lex.melt(id_vars="Country", var_name="Year", value_name="Life Expectancy")
+mortality_long = mortality.melt(id_vars="Country", var_name="Year", value_name="Child Mortality")
+
+# Convert year to numeric
+lex_long["Year"] = pd.to_numeric(lex_long["Year"])
+mortality_long["Year"] = pd.to_numeric(mortality_long["Year"])
+
+# Merge datasets
+merged = pd.merge(lex_long, mortality_long, on=["Country", "Year"])
+```
+
+# Life Expectancy Analysis
+
+## Life Expectancy Overview
+```{python}
+latest_year = lex_long['Year'].max()
+latest_lex = lex_long[lex_long['Year'] == latest_year]
+```
+
+```{python}
+top_country = latest_lex.loc[latest_lex['Life Expectancy'].idxmax()]
+low_country = latest_lex.loc[latest_lex['Life Expectancy'].idxmin()]
+mean_lex = latest_lex['Life Expectancy'].mean()
+```
+
+
+::: {.valuebox title="Highest Life Expectancy" color="#4CAF50" icon="arrow-up"}
+{top_country['Country']}: {top_country['Life Expectancy']:.1f} years
+:::
+
+::: {.valuebox title="Lowest Life Expectancy" color="#F44336" icon="arrow-down"}
+{low_country['Country']}: {low_country['Life Expectancy']:.1f} years
+:::
+
+::: {.valuebox title="Global Average" color="#2196F3" icon="globe"}
+{mean_lex:.1f} years
+:::
+
+
+
+## Life Expectancy by Country (Map)
+```{python}
+fig = px.choropleth(latest_lex, locations="Country", locationmode="country names",
+                    color="Life Expectancy",
+                    color_continuous_scale="Viridis",
+                    title="Life Expectancy by Country in Latest Year",
+                    labels={"Life Expectancy": "Years"})
+fig.show()
+```
+
+## Life Expectancy Trends (Top 5 Countries)
+```{python}
+top_countries = latest_lex.sort_values("Life Expectancy", ascending=False).head(5)["Country"]
+fig = px.line(lex_long[lex_long["Country"].isin(top_countries)],
+              x="Year", y="Life Expectancy", color="Country",
+              title="Trends in Life Expectancy (Top 5 Countries)",
+              labels={"Life Expectancy": "Years"})
+fig.show()
+```
+
+## Life Expectancy Table
+```{python}
+table_data = lex_long[lex_long["Country"].isin(top_countries)].pivot(index="Year", columns="Country", values="Life Expectancy")
+table_data.tail()
+```
+
+# Child Mortality Analysis
+
+## Child Mortality Overview
+```{python}
+latest_mortality = mortality_long[mortality_long['Year'] == latest_year]
+high = latest_mortality.loc[latest_mortality['Child Mortality'].idxmax()]
+low = latest_mortality.loc[latest_mortality['Child Mortality'].idxmin()]
+mean_cm = latest_mortality['Child Mortality'].mean()
+```
+
+
+::: {.valuebox title="Highest Mortality" color="#E53935" icon="arrow-up"}
+{high['Country']}: {high['Child Mortality']:.1f} deaths/1000
+:::
+
+::: {.valuebox title="Lowest Mortality" color="#43A047" icon="arrow-down"}
+{low['Country']}: {low['Child Mortality']:.1f} deaths/1000
+:::
+
+::: {.valuebox title="Global Average" color="#1E88E5" icon="globe"}
+{mean_cm:.1f} deaths/1000
+:::
+
+
+
+## Child Mortality by Country (Map)
+```{python}
+fig = px.choropleth(latest_mortality, locations="Country", locationmode="country names",
+                    color="Child Mortality",
+                    color_continuous_scale="Reds",
+                    title="Child Mortality Rate by Country in Latest Year",
+                    labels={"Child Mortality": "Deaths per 1000"})
+fig.show()
+```
+
+## Child Mortality Over Time (Top 5 Countries)
+```{python}
+top_countries_cm = latest_mortality.sort_values("Child Mortality", ascending=False).head(5)["Country"]
+fig = px.line(mortality_long[mortality_long["Country"].isin(top_countries_cm)],
+              x="Year", y="Child Mortality", color="Country",
+              title="Trends in Child Mortality (Top 5 Countries)",
+              labels={"Child Mortality": "Deaths per 1000"})
+fig.show()
+```
+
+## Child Mortality Comparison Table
+```{python}
+table_data_cm = mortality_long[mortality_long["Country"].isin(top_countries_cm)].pivot(index="Year", columns="Country", values="Child Mortality")
+table_data_cm.tail()
+```
+
+# Relationship Between Indicators
+
+## Scatter Plot: Life Expectancy vs. Child Mortality
+```{python}
+latest_data = merged[merged["Year"] == latest_year]
+fig = px.scatter(latest_data, x="Child Mortality", y="Life Expectancy", color="Country",
+                 hover_name="Country",
+                 title="Life Expectancy vs. Child Mortality (Latest Year)",
+                 labels={"Child Mortality": "Deaths per 1000", "Life Expectancy": "Years"})
+fig.show()
+```
+
+## Highlight High-Risk Countries
+```{python}
+high_risk = latest_data[(latest_data['Child Mortality'] > mean_cm) & (latest_data['Life Expectancy'] < mean_lex)]
+high_risk[['Country', 'Life Expectancy', 'Child Mortality']]
+```
+
+## Key Insights
+
+Countries with higher life expectancy tend to have lower child mortality rates, suggesting stronger healthcare and socioeconomic conditions. The scatter plot demonstrates a negative correlation. High-risk countries, identified in the table above, may benefit from targeted interventions.
